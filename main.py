@@ -58,59 +58,60 @@ class DecryptionApp:
             print("Authentication failed.")
             return
 
-    def validate_hex_key(self, key_input):
-        return all(c in '0123456789abcdefABCDEF' for c in key_input)
+        def validate_hex_key(self, key_input):
+            return all(c in '0123456789abcdefABCDEF' for c in key_input)
 
-    def validate_hex_message(self, message_input):
-        return all(c in '0123456789abcdefABCDEF' for c in message_input)
+        def validate_hex_message(self, message_input):
+            return all(c in '0123456789abcdefABCDEF' for c in message_input)
 
-    def run(self):
-        logging.basicConfig(filename='decryption_app.log', level=logging.INFO,
-                            format='%(asctime)s - %(levelname)s - %(message)s')
-
-        try:
-            decryption_key = getpass.getpass("Enter the decryption key (hex format): ").strip()
-            if not self.validate_hex_key(decryption_key):
-                print("Invalid decryption key format. Please enter the key in hex format.")
-                logging.error("Invalid decryption key format.")
-                return
-            logging.info("Decryption Key entered securely")
-
-            encrypted_message_input = input("Enter the encrypted message (hex format): ").strip()
-            if not self.validate_hex_message(encrypted_message_input):
-                print("Invalid encrypted message format. Please enter the message in hex format.")
-                logging.error("Invalid encrypted message format.")
+        def run(self, decryption_key, encrypted_message_input):
+            if not self.authenticate():
+                print("Authentication failed.")
                 return
 
-            encrypted_message = bytes.fromhex(encrypted_message_input)
-            decrypted_message = self.decrypt_message(encrypted_message, decryption_key.encode())
-            print("Decrypted Message:", decrypted_message)
-            logging.info("Message Decrypted Successfully")
-        except KeyboardInterrupt:
-            print("\nDecryption process interrupted.")
-            logging.info("Decryption process interrupted.")
-        except cryptography.fernet.InvalidToken:
-            print("Decryption failed. The provided key might be incorrect or the message has been tampered with.")
-            logging.error("Decryption failed")
-        except Exception as e:
-            print("An error occurred during decryption:", e)
-            logging.error("An error occurred during decryption: %s", e)
+            try:
+                decryption_key = decryption_key.strip()
+                if not self.validate_hex_key(decryption_key):
+                    print("Invalid decryption key format. Please enter the key in hex format.")
+                    return
 
+                logging.info("Decryption Key entered securely")
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
-    parser.add_argument("--encrypt", help="Encrypt a message")
-    parser.add_argument("--decrypt", help="Decrypt a message (requires decryption key and encrypted message arguments)")
-    parser.add_argument("--decryption_key", help="Decryption key (hex format)", required="--decrypt" in sys.argv)
-    parser.add_argument("--encrypted_message", help="Encrypted message (hex format)", required="--decrypt" in sys.argv)
+                encrypted_message_input = encrypted_message_input.strip()
+                if not self.validate_hex_message(encrypted_message_input):
+                    print("Invalid encrypted message format. Please enter the message in hex format.")
+                    return
 
-    args = parser.parse_args()
+                encrypted_message = bytes.fromhex(encrypted_message_input)
+                decrypted_message = self.decrypt_message(encrypted_message, decryption_key.encode())
+                print("Decrypted Message:", decrypted_message)
+                logging.info("Message Decrypted Successfully")
+            except KeyboardInterrupt:
+                print("\nDecryption process interrupted.")
+                logging.info("Decryption process interrupted.")
+            except cryptography.fernet.InvalidToken:
+                print("Decryption failed. The provided key might be incorrect or the message has been tampered with.")
+                print("Make sure the decryption key and encrypted message are correct.")
+            except Exception as e:
+                print("An error occurred during decryption:", e)
+                print("Please check if the decryption key and encrypted message are correct.")
 
-    if args.encrypt:
-        encryption_app = EncryptionApp()
-        encryption_app.run(args.encrypt)
-    elif args.decrypt:
-        decryption_app = DecryptionApp()
-        decryption_app.run(args.decryption_key, args.encrypted_message)
-    else:
-        print("No valid action provided. Use --encrypt or --decrypt.")
+    if __name__ == "__main__":
+        parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
+        parser.add_argument("--encrypt", help="Encrypt a message")
+        parser.add_argument("--decrypt",
+                            help="Decrypt a message (requires decryption key and encrypted message arguments)")
+        parser.add_argument("--decryption_key", help="Decryption key (hex format)", required="--decrypt" in sys.argv)
+        parser.add_argument("--encrypted_message", help="Encrypted message (hex format)",
+                            required="--decrypt" in sys.argv)
+
+        args = parser.parse_args()
+
+        if args.encrypt:
+            encryption_app = EncryptionApp()
+            encryption_app.run(args.encrypt)
+        elif args.decrypt:
+            decryption_app = DecryptionApp()
+            decryption_app.run(args.decryption_key, args.encrypted_message)
+        else:
+            print("No valid action provided. Use --encrypt or --decrypt.")
