@@ -1,6 +1,7 @@
 import logging
 from cryptography.fernet import Fernet
-import getpass
+import argparse
+import cryptography.fernet
 import sys
 
 class EncryptionApp:
@@ -79,9 +80,21 @@ class DecryptionApp:
             print("An error occurred during decryption:", e)
             logging.error("An error occurred during decryption: %s", e)
 
-if __name__ == "__main__":
-    encryption_app = EncryptionApp()
-    encryption_app.run()
 
-    decryption_app = DecryptionApp()
-    decryption_app.run()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
+    parser.add_argument("--encrypt", help="Encrypt a message")
+    parser.add_argument("--decrypt", help="Decrypt a message (requires decryption key and encrypted message arguments)")
+    parser.add_argument("--decryption_key", help="Decryption key (hex format)", required="--decrypt" in sys.argv)
+    parser.add_argument("--encrypted_message", help="Encrypted message (hex format)", required="--decrypt" in sys.argv)
+
+    args = parser.parse_args()
+
+    if args.encrypt:
+        encryption_app = EncryptionApp()
+        encryption_app.run(args.encrypt)
+    elif args.decrypt:
+        decryption_app = DecryptionApp()
+        decryption_app.run(args.decryption_key, args.encrypted_message)
+    else:
+        print("No valid action provided. Use --encrypt or --decrypt.")
