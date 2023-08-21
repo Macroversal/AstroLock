@@ -1,6 +1,7 @@
 import logging
 from cryptography.fernet import Fernet
 import argparse
+import getpass
 import cryptography.fernet
 import sys
 
@@ -41,6 +42,21 @@ class DecryptionApp:
         cipher_suite = Fernet(decryption_key)
         decrypted_message = cipher_suite.decrypt(encrypted_message)
         return decrypted_message.decode()
+
+    def authenticate(self):
+        username = input("Enter your username: ")
+        password = getpass.getpass("Enter your password: ")
+        # Here you can perform authentication based on username and password
+        # For demonstration purposes, let's assume username is "admin" and password is "password"
+        if username == "admin" and password == "password":
+            return True
+        else:
+            return False
+
+    def run(self, decryption_key, encrypted_message_input):
+        if not self.authenticate():
+            print("Authentication failed.")
+            return
 
     def validate_hex_key(self, key_input):
         return all(c in '0123456789abcdefABCDEF' for c in key_input)
