@@ -1,9 +1,10 @@
 import logging
-from cryptography.fernet import Fernet
 import argparse
 import getpass
-import cryptography.fernet
-import sys
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from pip._internal.utils import hashes
 
 # Constants
 ADMIN_USERNAME = "admin"
@@ -18,6 +19,45 @@ ERROR_MESSAGES = {
     "unknown_error": "An unknown error occurred. Please check your input and try again.",
 }
 
+class AsymmetricEncryptionApp:
+    """Class for handling asymmetric encryption operations."""
+
+    def __init__(self):
+        self.private_key = None
+        self.public_key = None
+
+    def generate_key_pair(self):
+        """Generate a new RSA key pair."""
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+        public_key = private_key.public_key()
+        return private_key, public_key
+
+    def encrypt_message(self, message, public_key):
+        """Encrypt a given message using the provided public key."""
+        encrypted_message = public_key.encrypt(
+            message.encode(),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return encrypted_message
+
+    def decrypt_message(self, encrypted_message, private_key):
+        """Decrypt the given encrypted message using the provided private key."""
+        decrypted_message = private_key.decrypt(
+            encrypted_message,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return decrypted_message.decode()
 
 class EncryptionApp:
     """Class for handling encryption operations."""
@@ -35,7 +75,7 @@ class EncryptionApp:
         encrypted_message = cipher_suite.encrypt(message.encode())
         return encrypted_message
 
-    def run(self):
+    def run(self, message):
         """Run the encryption application."""
         logging.basicConfig(filename='encryption_app.log', level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
@@ -44,8 +84,6 @@ class EncryptionApp:
 
         print("Encryption Key:", self.key.decode())
         logging.info("Encryption Key displayed")
-
-        message = input("Enter the message to encrypt: ")
 
         try:
             encrypted_message = self.encrypt_message(message, self.key)
@@ -115,8 +153,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
     subparsers = parser.add_subparsers(dest='action', help='Choose an action:')
 
-    encrypt_parser = subparsers.add_parser('encrypt', help='Encrypt a message')
-    encrypt_parser.add_argument('message', help='Message to encrypt')
+    symmetric_parser = subparsers.add_parser('symmetric', help='Use symmetric encryption')
+    symmetric_parser.add_argument('message', help='Message to encrypt')
+
+    asymmetric_parser = subparsers.add_parser('asymmetric', help='Use asymmetric encryption')
+    asymmetric_parser.add_argument('message', help='Message to encrypt')
 
     decrypt_parser = subparsers.add_parser('decrypt', help='Decrypt a message')
     decrypt_parser.add_argument('--decryption_key', help='Decryption key (hex format)', required=True)
@@ -124,9 +165,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.action == 'encrypt':
+    if args.action == 'symmetric':
         encryption_app = EncryptionApp()
         encryption_app.run(args.message)
+    elif args.action == 'asymmetric':
+        asymmetric_encryption_app = AsymmetricEncryptionApp()
+        private_key, public_key = asymmetric_encryption_app.generate_key_pair()
+        encrypted_message = asymmetric_encryption_app.encrypt_message(args.message, public_key)
+        print("Message Encrypted Successfully.")
+        print("Encrypted Message:", encrypted_message.hex())
     elif args.action == 'decrypt':
         decryption_app = DecryptionApp()
         decryption_app.run(args.decryption_key, args.encrypted_message)
