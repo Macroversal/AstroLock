@@ -23,6 +23,22 @@ ERROR_MESSAGES = {
     "unknown_error": "An unknown error occurred. Please check your input and try again.",
 }
 
+# Custom Exceptions
+class AuthenticationError(Exception):
+    pass
+
+class InvalidKeyFormatError(Exception):
+    pass
+
+class InvalidMessageFormatError(Exception):
+    pass
+
+class DecryptionFailedError(Exception):
+    pass
+
+class UnknownError(Exception):
+    pass
+
 class AsymmetricEncryptionApp:
     """Class for handling asymmetric encryption operations."""
 
@@ -179,6 +195,17 @@ if __name__ == "__main__":
         print("Encrypted Message:", encrypted_message.hex())
     elif args.action == 'decrypt':
         decryption_app = DecryptionApp()
-        decryption_app.run(args.decryption_key, args.encrypted_message)
+        try:
+            decryption_app.run(args.decryption_key, args.encrypted_message)
+        except AuthenticationError:
+            print(ERROR_MESSAGES["authentication_failed"])
+        except InvalidKeyFormatError:
+            print(ERROR_MESSAGES["invalid_key_format"])
+        except InvalidMessageFormatError:
+            print(ERROR_MESSAGES["invalid_message_format"])
+        except DecryptionFailedError:
+            print(ERROR_MESSAGES["decryption_failed"])
+        except UnknownError as e:
+            print(ERROR_MESSAGES["unknown_error"], e)
     else:
         parser.print_help()
