@@ -88,21 +88,22 @@ class DecryptionApp:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
-    parser.add_argument("--encrypt", help="Encrypt a message")
-    parser.add_argument("--decrypt",
-                        help="Decrypt a message (requires decryption key and encrypted message arguments)")
-    parser.add_argument("--decryption_key", help="Decryption key (hex format)",
-                        required="--decrypt" in sys.argv)
-    parser.add_argument("--encrypted_message", help="Encrypted message (hex format)",
-                        required="--decrypt" in sys.argv)
+    subparsers = parser.add_subparsers(dest='action', help='Choose an action:')
+
+    encrypt_parser = subparsers.add_parser('encrypt', help='Encrypt a message')
+    encrypt_parser.add_argument('message', help='Message to encrypt')
+
+    decrypt_parser = subparsers.add_parser('decrypt', help='Decrypt a message')
+    decrypt_parser.add_argument('--decryption_key', help='Decryption key (hex format)', required=True)
+    decrypt_parser.add_argument('--encrypted_message', help='Encrypted message (hex format)', required=True)
 
     args = parser.parse_args()
 
-    if args.encrypt:
+    if args.action == 'encrypt':
         encryption_app = EncryptionApp()
-        encryption_app.run(args.encrypt)
-    elif args.decrypt:
+        encryption_app.run(args.message)
+    elif args.action == 'decrypt':
         decryption_app = DecryptionApp()
         decryption_app.run(args.decryption_key, args.encrypted_message)
     else:
-        print("No valid action provided. Use --encrypt or --decrypt.")
+        parser.print_help()
