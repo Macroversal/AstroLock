@@ -5,6 +5,10 @@ import getpass
 import cryptography.fernet
 import sys
 
+# Constants
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "password"
+
 class EncryptionApp:
     def __init__(self):
         self.key = None
@@ -44,7 +48,7 @@ class DecryptionApp:
     def authenticate(self):
         username = input("Enter your username: ")
         password = getpass.getpass("Enter your password: ")
-        return username == "admin" and password == "password"
+        return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
 
     def validate_hex(self, input_str):
         return all(c in '0123456789abcdefABCDEF' for c in input_str)
