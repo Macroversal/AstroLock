@@ -56,7 +56,15 @@ class AsymmetricEncryptionApp:
         return private_key, public_key
 
     def encrypt_message(self, message, public_key):
-        """Encrypt a given message using the provided public key."""
+        """Encrypt a given message using the provided public key.
+
+        Args:
+            message (str): The message to be encrypted.
+            public_key: The recipient's public key.
+
+        Returns:
+            bytes: Encrypted message.
+        """
         encrypted_message = public_key.encrypt(
             message.encode(),
             padding.OAEP(
@@ -68,7 +76,15 @@ class AsymmetricEncryptionApp:
         return encrypted_message
 
     def decrypt_message(self, encrypted_message, private_key):
-        """Decrypt the given encrypted message using the provided private key."""
+        """Decrypt the given encrypted message using the provided private key.
+
+        Args:
+            encrypted_message (bytes): The encrypted message.
+            private_key: The recipient's private key.
+
+        Returns:
+            str: Decrypted message.
+        """
         decrypted_message = private_key.decrypt(
             encrypted_message,
             padding.OAEP(
@@ -168,7 +184,7 @@ class DecryptionApp:
         except Exception as e:
             print(ERROR_MESSAGES["unknown_error"], e)
 
-if __name__ == "__main__":
+def parse_args():
     parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
     subparsers = parser.add_subparsers(dest='action', help='Choose an action:')
 
@@ -182,7 +198,11 @@ if __name__ == "__main__":
     decrypt_parser.add_argument('--decryption_key', help='Decryption key (hex format)', required=True)
     decrypt_parser.add_argument('--encrypted_message', help='Encrypted message (hex format)', required=True)
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+    parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
 
     if args.action == 'symmetric':
         encryption_app = EncryptionApp()
@@ -209,3 +229,10 @@ if __name__ == "__main__":
             print(ERROR_MESSAGES["unknown_error"], e)
     else:
         parser.print_help()
+
+if __name__ == "__main__":
+    main()
+
+
+
+
