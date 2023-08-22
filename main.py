@@ -46,11 +46,8 @@ class DecryptionApp:
         password = getpass.getpass("Enter your password: ")
         return username == "admin" and password == "password"
 
-    def validate_hex_key(self, key_input):
-        return all(c in '0123456789abcdefABCDEF' for c in key_input)
-
-    def validate_hex_message(self, message_input):
-        return all(c in '0123456789abcdefABCDEF' for c in message_input)
+    def validate_hex(self, input_str):
+        return all(c in '0123456789abcdefABCDEF' for c in input_str)
 
     def decrypt_message(self, encrypted_message, decryption_key):
         cipher_suite = Fernet(decryption_key)
@@ -64,14 +61,14 @@ class DecryptionApp:
 
         try:
             decryption_key = decryption_key.strip()
-            if not self.validate_hex_key(decryption_key):
+            if not self.validate_hex(decryption_key):
                 print("Invalid decryption key format. Please enter the key in hex format.")
                 return
 
             self.logger.info("Decryption Key entered securely")
 
             encrypted_message_input = encrypted_message_input.strip()
-            if not self.validate_hex_message(encrypted_message_input):
+            if not self.validate_hex(encrypted_message_input):
                 print("Invalid encrypted message format. Please enter the message in hex format.")
                 return
 
@@ -88,23 +85,24 @@ class DecryptionApp:
         except Exception as e:
             print("An error occurred during decryption:", e)
             print("Please check if the decryption key and encrypted message are correct.")
+
 if __name__ == "__main__":
-        parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
-        parser.add_argument("--encrypt", help="Encrypt a message")
-        parser.add_argument("--decrypt",
-                            help="Decrypt a message (requires decryption key and encrypted message arguments)")
-        parser.add_argument("--decryption_key", help="Decryption key (hex format)",
-                            required="--decrypt" in sys.argv)
-        parser.add_argument("--encrypted_message", help="Encrypted message (hex format)",
-                            required="--decrypt" in sys.argv)
+    parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
+    parser.add_argument("--encrypt", help="Encrypt a message")
+    parser.add_argument("--decrypt",
+                        help="Decrypt a message (requires decryption key and encrypted message arguments)")
+    parser.add_argument("--decryption_key", help="Decryption key (hex format)",
+                        required="--decrypt" in sys.argv)
+    parser.add_argument("--encrypted_message", help="Encrypted message (hex format)",
+                        required="--decrypt" in sys.argv)
 
-        args = parser.parse_args()
+    args = parser.parse_args()
 
-        if args.encrypt:
-            encryption_app = EncryptionApp()
-            encryption_app.run(args.encrypt)
-        elif args.decrypt:
-            decryption_app = DecryptionApp()
-            decryption_app.run(args.decryption_key, args.encrypted_message)
-        else:
-            print("No valid action provided. Use --encrypt or --decrypt.")
+    if args.encrypt:
+        encryption_app = EncryptionApp()
+        encryption_app.run(args.encrypt)
+    elif args.decrypt:
+        decryption_app = DecryptionApp()
+        decryption_app.run(args.decryption_key, args.encrypted_message)
+    else:
+        print("No valid action provided. Use --encrypt or --decrypt.")
