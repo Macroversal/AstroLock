@@ -6,6 +6,10 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from pip._internal.utils import hashes
 
+# Configure logging
+logging.basicConfig(filename='encryption_app.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Constants
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "password"
@@ -147,7 +151,6 @@ class DecryptionApp:
             print(ERROR_MESSAGES["decryption_failed"])
         except Exception as e:
             print(ERROR_MESSAGES["unknown_error"], e)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
