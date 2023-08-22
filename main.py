@@ -9,6 +9,16 @@ import sys
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "password"
 
+# Error messages dictionary
+ERROR_MESSAGES = {
+    "authentication_failed": "Authentication failed. Please provide correct credentials.",
+    "invalid_key_format": "Invalid key format. Please enter the key in hex format.",
+    "invalid_message_format": "Invalid message format. Please enter the message in hex format.",
+    "decryption_failed": "Decryption failed. The provided key might be incorrect or the message has been tampered with.",
+    "unknown_error": "An unknown error occurred. Please check your input and try again.",
+}
+
+
 class EncryptionApp:
     def __init__(self):
         self.key = None
@@ -60,20 +70,20 @@ class DecryptionApp:
 
     def run(self, decryption_key, encrypted_message_input):
         if not self.authenticate():
-            print("Authentication failed.")
+            print(ERROR_MESSAGES["authentication_failed"])
             return
 
         try:
             decryption_key = decryption_key.strip()
             if not self.validate_hex(decryption_key):
-                print("Invalid decryption key format. Please enter the key in hex format.")
+                print(ERROR_MESSAGES["invalid_key_format"])
                 return
 
             self.logger.info("Decryption Key entered securely")
 
             encrypted_message_input = encrypted_message_input.strip()
             if not self.validate_hex(encrypted_message_input):
-                print("Invalid encrypted message format. Please enter the message in hex format.")
+                print(ERROR_MESSAGES["invalid_message_format"])
                 return
 
             encrypted_message = bytes.fromhex(encrypted_message_input)
@@ -84,11 +94,9 @@ class DecryptionApp:
             print("\nDecryption process interrupted.")
             self.logger.info("Decryption process interrupted.")
         except cryptography.fernet.InvalidToken:
-            print("Decryption failed. The provided key might be incorrect or the message has been tampered with.")
-            print("Make sure the decryption key and encrypted message are correct.")
+            print(ERROR_MESSAGES["decryption_failed"])
         except Exception as e:
-            print("An error occurred during decryption:", e)
-            print("Please check if the decryption key and encrypted message are correct.")
+            print(ERROR_MESSAGES["unknown_error"], e)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Python Encryption/Decryption Tool")
