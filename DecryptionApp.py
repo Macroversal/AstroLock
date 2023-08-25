@@ -3,8 +3,8 @@ import logging
 import getpass
 import cryptography
 from cryptography.fernet import Fernet
-from constants import ERROR_MESSAGES
-from exceptions import AuthenticationError, InvalidKeyFormatError, InvalidMessageFormatError, DecryptionFailedError, UnknownError
+from Constants import ERROR_MESSAGES, ADMIN_USERNAME, ADMIN_PASSWORD  # Import the constants
+from Exceptions import AuthenticationError, InvalidKeyFormatError, InvalidMessageFormatError, DecryptionFailedError, UnknownError
 
 class DecryptionApp:
     """Class for handling decryption operations."""

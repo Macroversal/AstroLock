@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from pip._internal.utils import hashes
 from Constants import ADMIN_USERNAME, ADMIN_PASSWORD, ERROR_MESSAGES
-from exceptions import AuthenticationError, InvalidKeyFormatError, InvalidMessageFormatError, DecryptionFailedError, UnknownError
+from Exceptions import AuthenticationError, InvalidKeyFormatError, InvalidMessageFormatError, DecryptionFailedError, UnknownError
 
 class AsymmetricEncryptionApp:
     """Class for handling asymmetric encryption operations."""

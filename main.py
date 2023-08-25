@@ -4,8 +4,10 @@ from EncryptionApp import EncryptionApp, AsymmetricEncryptionApp
 from DecryptionApp import DecryptionApp
 from Constants import ERROR_MESSAGES
 from Exceptions import AuthenticationError, InvalidKeyFormatError, InvalidMessageFormatError, DecryptionFailedError, UnknownError
+
 def main():
     args = parse_args()
+    parser = parse_args()  # Create the parser instance
 
     if args.action == 'symmetric':
         encryption_app = EncryptionApp()
@@ -31,7 +33,7 @@ def main():
         except UnknownError as e:
             print(ERROR_MESSAGES["unknown_error"], e)
     else:
-        parser.print_help()
+        parser.print_help()  # Use the parser instance to print help
 
 if __name__ == "__main__":
     main()
